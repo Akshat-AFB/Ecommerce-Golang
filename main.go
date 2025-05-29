@@ -1,14 +1,13 @@
 package main
 
 import (
+	"backend-go/database"
 	"backend-go/routes"
 	"fmt"
 	"net/http"
-	"backend-go/database"
-
 )
 
-func main(){
+func main() {
 	database.ConnectDatabase()
 	routes.RegisterRoutes()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

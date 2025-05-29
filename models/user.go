@@ -11,7 +11,6 @@ type User struct {
 	Role     string	`gorm:"not null;default:'user'"`
 }
 
-// Custom errors
 var (
     ErrEmailExists     = errors.New("email already registered")
     ErrUsernameExists  = errors.New("username already taken")
