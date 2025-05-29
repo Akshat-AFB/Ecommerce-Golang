@@ -70,3 +70,46 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(createdProduct)
 }
+// UpdateProduct handles updating a product
+func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	var product models.Product
+	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
+		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		return
+	}
+
+	if product.ID == 0 || product.Name == "" || product.Price <= 0 || product.Description == "" || product.ImageURL == "" || product.Quantity < 0 {
+		http.Error(w, "Missing or invalid fields", http.StatusBadRequest)
+		return
+	}
+
+	err := services.UpdateProductService(product)
+	if err != nil {
+		http.Error(w, "Failed to update product: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Product updated successfully"})
+}
+
+// DeleteProduct handles deleting a product
+func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		ID uint `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil || payload.ID == 0 {
+		http.Error(w, "Invalid product ID", http.StatusBadRequest)
+		return
+	}
+
+	err := services.DeleteProductService(payload.ID)
+	if err != nil {
+		http.Error(w, "Failed to delete product: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Product deleted successfully"})
+}
+

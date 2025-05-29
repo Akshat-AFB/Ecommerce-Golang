@@ -14,6 +14,8 @@ func RegisterRoutes() {
 	
 	http.HandleFunc("/api/v1/products", middleware.Method("GET", controllers.GetProducts))
 	http.HandleFunc("/api/v1/products/create", middleware.Method("POST", middleware.AdminMiddleware(controllers.CreateProduct)))
+	http.HandleFunc("/api/v1/products/update", middleware.Method("PUT", middleware.AdminMiddleware(controllers.UpdateProduct)))
+	http.HandleFunc("/api/v1/products/delete", middleware.Method("DELETE", middleware.AdminMiddleware(controllers.DeleteProduct)))
 
 
 	http.HandleFunc("/api/v1/cart", middleware.Method("GET", middleware.AuthMiddleware(controllers.ViewCart)))

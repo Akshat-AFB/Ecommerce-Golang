@@ -43,7 +43,6 @@ func InsertProduct(product models.Product) (models.Product, error) {
 	return product, nil
 }
 
-// UpdateProduct updates an existing product
 func UpdateProduct(p models.Product) error {
 	_, err := database.GetDB().Exec(`
 		UPDATE products 
@@ -53,21 +52,7 @@ func UpdateProduct(p models.Product) error {
 	return err
 }
 
-// DeleteProduct deletes a product by its ID
 func DeleteProduct(id uint) error {
 	_, err := database.GetDB().Exec("DELETE FROM products WHERE id = $1", id)
 	return err
 }
-
-// GetProductByID retrieves a single product by its ID
-// func GetProductByID(id uint) (*models.Product, error) {
-// 	row := database.GetDB().QueryRow(`
-// 		SELECT id, name, price, description, image_url, quantity 
-// 		FROM products WHERE id = $1`, id)
-
-// 	var p models.Product
-// 	if err := row.Scan(&p.ID, &p.Name, &p.Price, &p.Description, &p.ImageURL, &p.Quantity); err != nil {
-// 		return nil, err
-// 	}
-// 	return &p, nil
-// }
