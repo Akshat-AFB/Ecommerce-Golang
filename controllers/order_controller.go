@@ -13,7 +13,11 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r.Context())
 	order, err := services.PlaceOrder(userID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if err.Error() == "cart is empty" {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 	order.User.Password = ""

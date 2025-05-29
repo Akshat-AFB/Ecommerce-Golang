@@ -8,8 +8,11 @@ import (
 
 func PlaceOrder(userID uint) (*models.Order, error) {
 	cartItems, err := repositories.GetCartItemsWithProduct(userID)
-	if err != nil || len(cartItems) == 0 {
-		return nil, errors.New("cart is empty or failed to retrieve")
+	if err != nil {
+		return nil, errors.New("failed to retrieve cart items")
+	}
+	if len(cartItems) == 0 {
+		return nil, errors.New("cart is empty")
 	}
 
 	var total float64

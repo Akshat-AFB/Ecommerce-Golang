@@ -4,6 +4,8 @@ import (
 	"backend-go/database"
 	"backend-go/models"
 	"time"
+	"errors"
+	"strconv"
 )
 
 func GetCartItemsWithProduct(userID uint) ([]models.CartItem, error) {
@@ -51,13 +53,32 @@ func CreateOrder(userID uint, total float64, items []models.OrderItem) (int, err
 		return 0, err
 	}
 
-	for _, item := range items {
-		_, err := tx.Exec(`
-			INSERT INTO order_items (order_id, product_id, quantity, price) 
-			VALUES ($1, $2, $3, $4)`,
-			orderID, item.ProductID, item.Quantity, item.Price)
+	for i := range items {
+		// Insert order item
+		err := tx.QueryRow(`
+			INSERT INTO order_items (order_id, product_id, quantity, price)
+			VALUES ($1, $2, $3, $4)
+			RETURNING id`,
+			orderID, items[i].ProductID, items[i].Quantity, items[i].Price).
+			Scan(&items[i].ID)
 		if err != nil {
 			return 0, err
+		}
+		items[i].OrderID = uint(orderID)
+
+		// Decrease product quantity
+		res, err := tx.Exec(`
+			UPDATE products
+			SET quantity = quantity - $1
+			WHERE id = $2 AND quantity >= $1`,
+			items[i].Quantity, items[i].ProductID)
+		if err != nil {
+			return 0, err
+		}
+
+		affected, _ := res.RowsAffected()
+		if affected == 0 {
+			return 0, errors.New("not enough stock for product ID " + strconv.Itoa(int(items[i].ProductID)))
 		}
 	}
 
@@ -66,6 +87,7 @@ func CreateOrder(userID uint, total float64, items []models.OrderItem) (int, err
 	}
 	return orderID, nil
 }
+
 
 func ClearCart(userID uint) error {
 	_, err := database.GetDB().Exec("DELETE FROM cart_items WHERE user_id = $1", userID)
