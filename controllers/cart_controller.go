@@ -3,9 +3,7 @@ package controllers
 import (
 	"backend-go/services"
 	"backend-go/types"
-	// "context"
 	"encoding/json"
-	// "log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,16 +15,6 @@ const (
 	ContextUserID contextKey = "userID"
 	ContextRole   contextKey = "role"
 )
-// func getUserIDFromContext(ctx context.Context) uint {
-// 	log.Printf("getUserIDFromContext called with context: %v", ctx)
-// 	userID, ok := ctx.Value(ContextUserID).(uint)
-// 	log.Print("userID from getUserIDFromContext: ", userID)
-// 	log.Print("ok from getUserIDFromContext: ", ok)
-// 	if !ok {
-// 		return 0
-// 	}
-// 	return userID
-// }
 
 func AddToCart(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r.Context())

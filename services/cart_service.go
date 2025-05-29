@@ -47,7 +47,7 @@ func ChangeQuantity(userID, productID uint, quantity int) error {
 func RemoveCartItem(userID, cartItemID uint) error {
 	// Fetch item by ID to validate ownership
 	log.Printf("Removing cart item %d for user %d", cartItemID, userID)
-	item, err := repositories.GetCartItem(userID, cartItemID) // optional improvement: add GetCartItemByID()
+	item, err := repositories.GetCartItem(userID, cartItemID)
 	if err != nil || item == nil || item.UserID != userID {
 		return errors.New("unauthorized or cart item not found")
 	}

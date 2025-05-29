@@ -5,7 +5,6 @@ import (
 	"backend-go/models"
 )
 
-// GetAllProducts retrieves all products from the database
 func GetAllProducts(limit, offset int) ([]models.Product, error) {
 	rows, err := database.GetDB().Query(`
 		SELECT id, name, price, description, image_url, quantity

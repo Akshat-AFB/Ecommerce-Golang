@@ -17,7 +17,6 @@ type Order struct {
 type OrderItem struct {
     ID        uint    `gorm:"primaryKey"`
     OrderID   uint    `gorm:"not null"`  
-	// Order     Order   `gorm:"foreignKey:OrderID"`               // Association
 	ProductID uint    `gorm:"not null"`                          // Foreign key to Product
     Product   Product `gorm:"foreignKey:ProductID"`              // Association
 	Quantity  int     `gorm:"not null;check:quantity > 0"`       // Must be at least 1

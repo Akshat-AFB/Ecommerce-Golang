@@ -55,7 +55,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
-// Helpers
+
 func GetUserIDFromContext(ctx context.Context) uint {
 	if userID, ok := ctx.Value(ContextUserID).(uint); ok {
 		return userID

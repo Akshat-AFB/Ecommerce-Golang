@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	// "log"
 	"net/http"
 	"strconv"
 	"backend-go/models"

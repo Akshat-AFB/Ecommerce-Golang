@@ -4,7 +4,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 type Credentials struct {
-	Login    string `json:"login"` // "login" can be email or username
+	Login    string `json:"login"` 
 	Password string `json:"password"`
 }
 type Claims struct {
@@ -16,13 +16,3 @@ type ChangeQuantityPayload struct {
 	ProductID uint `json:"productID"`
 	Quantity int `json:"quantity"`
 }
-
-// type contextKey string
-
-// var ContextUserID = struct {
-// 	UserID contextKey
-// 	Role   contextKey
-// }{
-// 	UserID: "userID",
-// 	Role:   "role",
-// }
