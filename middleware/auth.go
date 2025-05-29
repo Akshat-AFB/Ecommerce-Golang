@@ -1,11 +1,13 @@
 package middleware
 
 import (
-	"net/http"
-	"strings"
-	"github.com/golang-jwt/jwt/v5"
 	"backend-go/types"
 	"context"
+	"log"
+	"net/http"
+	"strings"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type contextKey string
@@ -44,7 +46,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
             http.Error(w, "Invalid token", http.StatusUnauthorized)
             return
         }
-
+		log.Printf("Authenticated user ID: %d, Role: %s", claims.UserID, claims.Role)
 		// Add user info to request context
 		ctx := context.WithValue(r.Context(), ContextUserID, claims.UserID)
 		ctx = context.WithValue(ctx, ContextRole, claims.Role)

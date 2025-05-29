@@ -1,19 +1,20 @@
 package handlers
 
-import(
-	"net/http"
+import (
 	"encoding/json"
+	"net/http"
 	"time"
+
 	// "fmt"
 	"strings"
 	// "log"
 	// "os"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-    "github.com/golang-jwt/jwt/v5"
 
-	"backend-go/models"
 	"backend-go/database"
+	"backend-go/models"
 )
 
 var jwtKey = []byte("231d11c697b4a11fed49886a62cf5cc8d50572543beb9ed16a9bd82cbf59a986")
@@ -24,13 +25,13 @@ type Credentials struct {
 }
 type Claims struct {
 	UserID uint
-    Role   string
-    jwt.RegisteredClaims
+	Role   string
+	jwt.RegisteredClaims
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-	
+
 	// Decode JSON body
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
@@ -45,13 +46,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	// Check if email already exists
 	var existingUser models.User
-	if err := database.DB.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
+	if err := database.GetDB().Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
 		http.Error(w, "Email already registered", http.StatusConflict)
 		return
 	}
 
 	// Check if username already exists
-	if err := database.DB.Where("username = ?", user.Username).First(&existingUser).Error; err == nil {
+	if err := database.GetDB().Where("username = ?", user.Username).First(&existingUser).Error; err == nil {
 		http.Error(w, "Username already taken", http.StatusConflict)
 		return
 	}
@@ -70,7 +71,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	result := database.DB.Create(&user)
+	result := database.GetDB().Create(&user)
 	if result.Error != nil {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
@@ -81,7 +82,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-
 func Login(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
@@ -90,9 +90,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	// fmt.Print(creds)
 
-
 	var user models.User
-	result := database.DB.Where("email = ? OR username = ?", creds.Login, creds.Login).First(&user)
+	result := database.GetDB().Where("email = ? OR username = ?", creds.Login, creds.Login).First(&user)
 
 	if result.Error != nil {
 		http.Error(w, "User not found. Please register first.", http.StatusUnauthorized)
@@ -111,10 +110,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		UserID: uint(user.ID),
 		Role:   user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt: jwt.NewNumericDate(time.Now()),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			Issuer: "backend-go",
-			Audience: []string{"users"},
+			Issuer:    "backend-go",
+			Audience:  []string{"users"},
 		},
 	}
 

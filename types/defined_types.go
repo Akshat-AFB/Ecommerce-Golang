@@ -13,5 +13,16 @@ type Claims struct {
     jwt.RegisteredClaims
 }
 type ChangeQuantityPayload struct {
+	ProductID uint `json:"productID"`
 	Quantity int `json:"quantity"`
 }
+
+// type contextKey string
+
+// var ContextUserID = struct {
+// 	UserID contextKey
+// 	Role   contextKey
+// }{
+// 	UserID: "userID",
+// 	Role:   "role",
+// }

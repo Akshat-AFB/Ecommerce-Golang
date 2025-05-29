@@ -1,20 +1,20 @@
 package handlers
 
 import (
+	"backend-go/database"
+	"backend-go/models"
 	"encoding/json"
 	"net/http"
-	"backend-go/models"
-	"backend-go/database"
 )
 
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 	var products []models.Product
-	database.DB.Find(&products)
+	database.GetDB().Find(&products)
 	// products := []models.Product{
 	// 	{ID: 1, Name: "iPhone 13", Price: 999.99, Description: "Latest Apple iPhone", ImageURL: "https://example.com/iphone13.jpg"},
 	// 	{ID: 2, Name: "Samsung S22", Price: 899.99, Description: "Latest Samsung Galaxy", ImageURL: "https://example.com/samsung-s22.jpg"},
 	// 	{ID: 3, Name: "Google Pixel 6", Price: 799.99, Description: "Latest Google Pixel", ImageURL: "https://example.com/pixel6.jpg"},
-    // }
+	// }
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(products)
@@ -43,7 +43,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create product
-	result := database.DB.Create(&product)
+	result := database.GetDB().Create(&product)
 	if result.Error != nil {
 		http.Error(w, "Database error: "+result.Error.Error(), http.StatusInternalServerError)
 		return

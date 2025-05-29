@@ -2,29 +2,27 @@ package routes
 
 import(
 	"net/http"
-	"backend-go/handlers"
+	// "backend-go/handlers"
 	"backend-go/middleware"
+	"backend-go/controllers"
 )
 
 func RegisterRoutes() {
-	// Auth
-	http.HandleFunc("/auth/register", middleware.Method("POST", handlers.Register))
-	http.HandleFunc("/auth/login", middleware.Method("POST", handlers.Login))
+	http.HandleFunc("/api/v1/auth/register", middleware.Method("POST", controllers.Register))
+	http.HandleFunc("/api/v1/auth/login", middleware.Method("POST", controllers.Login))
 
-	// Products
-	http.HandleFunc("/products", middleware.Method("GET", handlers.GetProducts))
-	http.HandleFunc("/products/create", middleware.Method("POST", middleware.AdminMiddleware(handlers.CreateProduct)))
-
-	// Cart
-	http.HandleFunc("/cart", middleware.Method("GET", middleware.AuthMiddleware(handlers.ViewCart)))
-	http.HandleFunc("/cart/add", middleware.Method("POST", middleware.AuthMiddleware(handlers.AddToCart)))
-	http.HandleFunc("/cart/remove/", middleware.Method("DELETE", middleware.AuthMiddleware(handlers.RemoveFromCart)))
-	http.HandleFunc("/cart/change/", middleware.Method("POST", middleware.AuthMiddleware(handlers.ChangeCartQuantity)))
-
-	//Orders
-	http.HandleFunc("/orders/place", middleware.Method("POST", middleware.AuthMiddleware(handlers.PlaceOrder)))
-	http.HandleFunc("/orders", middleware.Method("GET", middleware.AuthMiddleware(handlers.ViewOrders)))
-	http.HandleFunc("/orders/cancel/", middleware.Method("POST", middleware.AuthMiddleware(handlers.CancelOrder)))
+	
+	http.HandleFunc("/api/v1/products", middleware.Method("GET", controllers.GetProducts))
+	http.HandleFunc("/api/v1/products/create", middleware.Method("POST", middleware.AdminMiddleware(controllers.CreateProduct)))
 
 
+	http.HandleFunc("/api/v1/cart", middleware.Method("GET", middleware.AuthMiddleware(controllers.ViewCart)))
+	http.HandleFunc("/api/v1/cart/add", middleware.Method("POST", middleware.AuthMiddleware(controllers.AddToCart)))
+	http.HandleFunc("/api/v1/cart/remove/", middleware.Method("DELETE", middleware.AuthMiddleware(controllers.RemoveFromCart)))
+	http.HandleFunc("/api/v1/cart/change/", middleware.Method("POST", middleware.AuthMiddleware(controllers.ChangeQuantity)))
+
+
+	http.HandleFunc("/api/v1/orders/place", middleware.Method("POST", middleware.AuthMiddleware(controllers.PlaceOrder)))
+	http.HandleFunc("/api/v1/orders", middleware.Method("GET", middleware.AuthMiddleware(controllers.ViewOrders)))
+	http.HandleFunc("/api/v1/orders/cancel/", middleware.Method("POST", middleware.AuthMiddleware(controllers.CancelOrder)))
 }
