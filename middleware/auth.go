@@ -18,15 +18,14 @@ const (
 )
 
 var jwtKey = []byte("231d11c697b4a11fed49886a62cf5cc8d50572543beb9ed16a9bd82cbf59a986")
-func AdminMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		role := GetUserRoleFromContext(r.Context())
-		if role != "admin" {
-			http.Error(w, "Forbidden: Admins only", http.StatusForbidden)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
+
+func RequireAdmin(r *http.Request, w http.ResponseWriter) bool {
+	role := GetUserRoleFromContext(r.Context())
+	if role != "admin" {
+		http.Error(w, "Forbidden: Admins only", http.StatusForbidden)
+		return false
+	}
+	return true
 }
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

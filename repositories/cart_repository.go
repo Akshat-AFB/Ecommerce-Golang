@@ -6,21 +6,21 @@ import (
 	"database/sql"
 	"errors"
 )
-func GetProductByID(id uint) (*models.Product, error) {
-	row := database.GetDB().QueryRow(
-		"SELECT id, name, price, description, image_url, quantity FROM products WHERE id = $1",
-		id,
-	)
-	var p models.Product
-	err := row.Scan(&p.ID, &p.Name, &p.Price, &p.Description, &p.ImageURL, &p.Quantity)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &p, nil
-}
+// func GetProductByID(id uint) (*models.Product, error) {
+// 	row := database.GetDB().QueryRow(
+// 		"SELECT id, name, price, description, image_url, quantity FROM products WHERE id = $1",
+// 		id,
+// 	)
+// 	var p models.Product
+// 	err := row.Scan(&p.ID, &p.Name, &p.Price, &p.Description, &p.ImageURL, &p.Quantity)
+// 	if err != nil {
+// 		if errors.Is(err, sql.ErrNoRows) {
+// 			return nil, nil
+// 		}
+// 		return nil, err
+// 	}
+// 	return &p, nil
+// }
 
 func GetCartItem(userID uint, productID uint) (*models.CartItem, error) {
 	row := database.GetDB().QueryRow(

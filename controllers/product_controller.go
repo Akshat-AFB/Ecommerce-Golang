@@ -1,11 +1,13 @@
 package controllers
 
 import (
-	"encoding/json"
-	"net/http"
-	"strconv"
+	"backend-go/middleware"
 	"backend-go/models"
 	"backend-go/services"
+	"encoding/json"
+	// "log"
+	"net/http"
+	"strconv"
 )
 
 func GetProducts(w http.ResponseWriter, r *http.Request) {
@@ -42,9 +44,35 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(products)
 }
+func GetProductByID(w http.ResponseWriter, r *http.Request) {
+	// log.Println("GetProductByID called")
+	query := r.URL.Query()
+	idStr := query.Get("id") // expects ?id=123
+	// log.Println(idStr)
+	if idStr == "" {
+		http.Error(w, "missing id query param", http.StatusBadRequest)
+		return
+	}
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		http.Error(w, "invalid product id", http.StatusBadRequest)
+		return
+	}
 
+	product, err := services.GetProductByIDService(uint(id))
+	if err != nil {
+		http.Error(w, "product not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(product)
+}
 
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
+	if !middleware.RequireAdmin(r, w) {
+	return
+	}
 	var product models.Product
 	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
@@ -71,6 +99,9 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 }
 // UpdateProduct handles updating a product
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	if !middleware.RequireAdmin(r, w) {
+	return
+	}
 	var product models.Product
 	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
@@ -94,6 +125,9 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 // DeleteProduct handles deleting a product
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	if !middleware.RequireAdmin(r, w) {
+	return
+	}
 	var payload struct {
 		ID uint `json:"id"`
 	}

@@ -8,6 +8,9 @@ import (
 func GetProductsService(limit, offset int) ([]models.Product, error) {
 	return repositories.GetAllProducts(limit, offset)
 }
+func GetProductByIDService(id uint) (*models.Product, error) {
+	return repositories.GetProductByID(id)
+}
 func CreateProductService(product models.Product) (models.Product, error) {
 	return repositories.InsertProduct(product)
 }

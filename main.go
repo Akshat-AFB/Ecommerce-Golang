@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend-go/database"
+	"backend-go/redis"
 	"backend-go/routes"
 	"fmt"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 func main() {
 	database.ConnectDatabase()
+	redis.InitRedis()
 	routes.RegisterRoutes()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello, E - Commerce!")
