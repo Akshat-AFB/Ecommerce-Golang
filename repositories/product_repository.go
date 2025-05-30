@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"log"
 )
 
 func GetProductByID(id uint) (*models.Product, error) {
@@ -64,7 +65,13 @@ func GetAllProducts(limit, offset int) ([]models.Product, error) {
 
 // InsertProduct inserts a new product and returns it with its new ID
 func InsertProduct(product models.Product) (models.Product, error) {
-	err := database.GetDB().QueryRow(`
+	tx, err := database.GetDB().Begin()
+	if err != nil {
+		return models.Product{}, err
+	}
+	defer tx.Rollback()
+
+	err = tx.QueryRow(`
 		INSERT INTO products (name, price, description, image_url, quantity)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id`,
@@ -73,27 +80,62 @@ func InsertProduct(product models.Product) (models.Product, error) {
 	if err != nil {
 		return models.Product{}, err
 	}
+
+	if err = tx.Commit(); err != nil {
+		return models.Product{}, err
+	}
+
 	return product, nil
 }
 
+
 func UpdateProduct(p models.Product) error {
-	_, err := database.GetDB().Exec(`
+	tx, err := database.GetDB().Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`
 		UPDATE products 
 		SET name = $1, price = $2, description = $3, image_url = $4, quantity = $5
 		WHERE id = $6`,
 		p.Name, p.Price, p.Description, p.ImageURL, p.Quantity, p.ID)
-
-	if err == nil {
-		redis.Del(fmt.Sprintf("product:%d", p.ID))
+	if err != nil {
+		return err
 	}
-	return err
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	// Invalidate cache after successful commit
+	if err := redis.Del(fmt.Sprintf("product:%d", p.ID)); err != nil {
+		log.Println("Failed to delete cache:", err)
+	}
+	return nil
 }
 
-func DeleteProduct(id uint) error {
-	_, err := database.GetDB().Exec("DELETE FROM products WHERE id = $1", id)
 
-	if err == nil {
-		redis.Del(fmt.Sprintf("product:%d", id))
+func DeleteProduct(id uint) error {
+	tx, err := database.GetDB().Begin()
+	if err != nil {
+		return err
 	}
-	return err
+	defer tx.Rollback()
+
+	_, err = tx.Exec("DELETE FROM products WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	// Invalidate cache after successful commit
+	if err := redis.Del(fmt.Sprintf("product:%d", id)); err != nil {
+		log.Println("Failed to delete cache:", err)
+	}
+	return nil
 }
