@@ -55,5 +55,6 @@ func LoginUser(creds types.Credentials) (string, error) {
     }
 
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    go EmitLoginEvent(uint(user.ID))
     return token.SignedString(jwtKey)
 }

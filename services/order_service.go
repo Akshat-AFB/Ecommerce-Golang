@@ -46,7 +46,13 @@ func PlaceOrder(userID uint) (*models.Order, error) {
 func ViewOrders(userID uint, limit, offset int) ([]models.Order, error) {
 	return repositories.GetOrdersByUser(userID, limit, offset)
 }
-
+func GetOrderByID(userID uint, orderID int) (*models.Order, error) {
+	order, err := repositories.GetOrderByID(orderID)
+	if err != nil || order.UserID != userID {
+		return nil, errors.New("order not found or unauthorized")
+	}
+	return order, nil
+}
 func CancelOrder(userID uint, orderID int) (*models.Order, error) {
 	order, err := repositories.GetOrderByID(orderID)
 	if err != nil || order.UserID != userID {

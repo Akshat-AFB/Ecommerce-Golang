@@ -16,3 +16,8 @@ type ChangeQuantityPayload struct {
 	ProductID uint `json:"productID"`
 	Quantity int `json:"quantity"`
 }
+
+type LoginEvent struct {
+	UserID    uint   `json:"userID"`
+	Timestamp string `json:"timestamp"`
+}

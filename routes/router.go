@@ -26,5 +26,6 @@ func RegisterRoutes() {
 
 	http.HandleFunc("/api/v1/orders/place", middleware.Method("POST", middleware.AuthMiddleware(controllers.PlaceOrder)))
 	http.HandleFunc("/api/v1/orders", middleware.Method("GET", middleware.AuthMiddleware(controllers.ViewOrders)))
+	http.HandleFunc("/api/v1/orders/view/", middleware.Method("GET", middleware.AuthMiddleware(controllers.GetOrderByID)))
 	http.HandleFunc("/api/v1/orders/cancel/", middleware.Method("POST", middleware.AuthMiddleware(controllers.CancelOrder)))
 }

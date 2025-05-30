@@ -61,6 +61,22 @@ func ViewOrders(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(orders)
 }
 
+func GetOrderByID(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserIDFromContext(r.Context())
+	orderIDStr := strings.TrimPrefix(r.URL.Path, "/api/v1/orders/view/")
+	orderID, err := strconv.Atoi(orderIDStr)
+	if err != nil {
+		http.Error(w, "Invalid order ID", http.StatusBadRequest)
+		return
+	}
+	order, err := services.GetOrderByID(userID, orderID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
+	order.User.Password = ""
+	json.NewEncoder(w).Encode(order)
+}
 
 func CancelOrder(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r.Context())
