@@ -18,18 +18,36 @@ func IsUsernameTaken(username string) (bool, error) {
 }
 
 func CreateUser(user models.User) (models.User, error) {
-    query := `
+	db := database.GetDB()
+
+	tx, err := db.Begin()
+	if err != nil {
+		return models.User{}, err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	query := `
         INSERT INTO users (username, email, password, role)
         VALUES ($1, $2, $3, $4)
         RETURNING id;
     `
-    err := database.GetDB().QueryRow(query, user.Username, user.Email, user.Password, user.Role).Scan(&user.ID)
-    if err != nil {
-        return models.User{}, err
-    }
-
-    return user, nil
+	err = tx.QueryRow(query, user.Username, user.Email, user.Password, user.Role).Scan(&user.ID)
+	if err != nil {
+		return models.User{}, err
+	}
+    
+	if commitErr := tx.Commit(); commitErr != nil {
+		return models.User{}, commitErr
+	}
+    user.Password = "" // Clear password before returning
+	return user, nil
 }
+
 
 func FindUserByLogin(login string) (models.User, error) {
     var user models.User
